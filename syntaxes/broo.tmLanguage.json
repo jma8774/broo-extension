@@ -19,11 +19,13 @@
 		"functionName": {
 			"patterns": [
 				{
+					"comment": "For function declaration: function functionName()",
 					"match": "(?<=function\\s+)[a-zA-Z0-9_]+(?=\\s*\\()",
 					"name": "entity.name.function"
 				},
 				{
-					"match": "(?<=(\\.|\\s|^|\\())[a-zA-Z0-9_]+(?=\\()",
+					"comment": "For calling functions: functionName()",
+					"match": "(?<=(\\.|\\s|^|\\(|'))[a-zA-Z0-9_]+(?=\\()",
 					"name": "entity.name.function"
 				}
 			]
@@ -106,9 +108,9 @@
 				{ "include": "#operator" },
 				{ "include": "#strings" },
 				{ "include": "#pipeStrings" },
+				{ "include": "#objectKey"},
 				{ "include": "#number" },
 				{ "include": "#variable" }
-
 			]
 		},
 		"variable": {
@@ -116,42 +118,51 @@
 				{
 					"comment": "preceeded by 'var'",
 					"name": "variable.other.object.broo",
-					"match": "(?<=var\\s+)[a-zA-Z0-9_]+(?=(\\s|\\b|$))"
+					"match": "(?<=var\\s+)[a-zA-Z0-9$_]+(?=(\\s|\\b|$))"
 				},
 				{
 					"comment": "preceeded by ':'",
 					"name": "variable.other.object.broo",
-					"match": ":([a-zA-Z0-9_]+)"
+					"match": ":([a-zA-Z0-9$_]+)"
 				},
 				{
 					"comment": "followed by '.' or '['",
 					"name": "variable.other.object.broo",
-					"match": "[a-zA-Z0-9_]+(?=(\\.|\\[))"
+					"match": "[a-zA-Z0-9$_]+(?=(\\.|\\[))"
 				},
 				{
-					"comment": "preceeded by '.'",
+					"comment": "preceeded by '.' in 'somevar.var'",
 					"name": "variable.other.object.broo",
-					"match": "(?<=\\.\\s*)[a-zA-Z0-9_]+(?=(\\s|\\b|$))"
+					"match": "(?<=\\.\\s*)[a-zA-Z0-9$_]+(?=(\\s|\\b|$))"
 				},
 				{
-					"comment": "(somevar)",
+					"comment": "surrounded by () or",
 					"name": "variable.other.object.broo",
-					"match": "(?<=(\\(|,)\\s*)[a-zA-Z0-9_]+(?=(\\)|,|\\s|$))"
+					"match": "(?<=(\\(|,)\\s*)[a-zA-Z0-9$_]+(?=(\\)|,|\\s|$))"
 				},
 				{
-					"comment": "followed by an operator",
+					"comment": "followed by an operator with some special rules before/after the operator",
 					"name": "variable.other.object.broo",
-					"match": "(?<=(^|\\s*))[a-zA-Z0-9_]+(?=(\\s+(\\=|not|gt|ne|eq|lt|->|\\||\\?|\\?\\?|\\|\\||and|or|for|in|if)(\\s|$)))"
+					"match": "(?<=(^|\\s*|\\())[a-zA-Z0-9$_]+(?=(\\s+(\\=|not|gt|ne|eq|lt|le|ge|->|\\||\\?|\\?\\?|\\|\\||and|or|for|in|if|=|-=|\\+=|\\+|-)(\\s|$)))"
 				},
 				{
-					"comment": "followed by an operator",
+					"comment": "preceeded by an operator with some special rules before/after the operator",
 					"name": "variable.other.object.broo",
-					"match": "(?<=(^|\\s*|\\())[a-zA-Z0-9_]+(?=(\\s+(\\=|not|gt|ne|eq|lt|->|\\||\\?|\\?\\?|\\|\\||and|or|for|in|if)(\\s|$)))"
+					"match": "(?<=(\\s|\\()(\\=|not|gt|ne|eq|lt|le|ge|->|\\||\\?|\\?\\?|\\|\\||and|or|for|in|if|=)\\s+)[a-zA-Z0-9$_]+(?=\\s*(\\)|\\])|$)"
 				},
 				{
-					"comment": "preceeded by an operator",
+					"comment": "whole word",
 					"name": "variable.other.object.broo",
-					"match": "(?<=\\s(\\=|not|gt|ne|eq|lt|->|\\||\\?|\\?\\?|\\|\\||and|or|for|in|if)\\s+)[a-zA-Z0-9_]+(?=\\s*(\\)|\\]))"
+					"match": "\\b[a-zA-Z0-9$_]+\\b"
+				}
+			]
+		},
+		"objectKey": {
+			"patterns": [
+				{
+					"comment": "followed by ':'",
+					"name": "entity.name.tag",
+					"match": "([a-zA-Z0-9$_]+)\\s*:"
 				}
 			]
 		},
@@ -159,7 +170,7 @@
 			"patterns": [
 				{
 					"name": "keyword.control.broo",
-					"match": "(?<=(\\s|\\b|^))(var|const|equation|function|if|else|elseif|end|while|and|or|for|in|return)(?=(\\s|\\b|$))"
+					"match": "(?<=(\\s|\\b|^))(var|const|equation|break|function|if|else|elseif|end|while|and|or|for|in|return)(?=(\\s|\\b|$))"
 				},
 				{
 					"name": "variable.name.broo",
@@ -170,8 +181,8 @@
 		"operator": {
 			"patterns": [
 				{
-					"name": "keyword.operator.comparison.broo",
-					"match": "(?<=(\\s|\\b|^))(not|gt|ne|eq|lt|->|\\||\\?|\\?\\?|\\|\\|)(?=(\\s|\\b|$))"
+					"name": "keyword.control.broo",
+					"match": "(?<=(\\s|\\b|^))(not|gt|ne|eq|lt|le|ge|->|\\||\\?|\\?\\?|\\|\\|)(?=(\\s|\\b|$))"
 				}	
 			]
 		},
@@ -189,9 +200,18 @@
 			"end": "\\|\\s*(?=\\))"
 		},
 		"strings": {
-			"name": "string.quoted.double.broo",
-			"begin": "\"",
-			"end": "\""
+			"patterns": [
+				{
+					"name": "string.quoted.double.broo",
+					"begin": "\"",
+					"end": "\""
+				},
+				{
+					"name": "string.quoted.single.broo",
+					"begin": "'",
+					"end": "'"
+				}
+			]
 		}
 	},
 	"scopeName": "source.broo"
