@@ -1,4 +1,10 @@
 {
+  "author": "Jimmy Ma",
+  "publisher": "jma8774",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jma8774/broo-extension"
+  },
   "name": "broo-language",
   "displayName": "Broo Language",
   "description": "Basic syntax highlighter for Broo",
