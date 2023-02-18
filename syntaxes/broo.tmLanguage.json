@@ -3,18 +3,168 @@
 	"name": "Broo",
 	"patterns": [
 		{
-			"include": "#keywords"
-		},
-		{
-			"include": "#strings"
+			"include": "#broo"
 		}
 	],
 	"repository": {
+		"broo": {
+			"patterns": [
+				{ "include": "#script-tag" },
+				{ "include": "#begin-tag" }, 
+				{ "include": "#end-tag" },
+				{ "include": "#expression"},
+				{ "include": "#comment" }
+			]
+		},
+		"functionName": {
+			"patterns": [
+				{
+					"match": "(?<=function\\s+)[a-zA-Z0-9_]+(?=\\s*\\()",
+					"name": "entity.name.function"
+				},
+				{
+					"match": "(?<=(\\.|\\s|^|\\())[a-zA-Z0-9_]+(?=\\()",
+					"name": "entity.name.function"
+				}
+			]
+		},
+		"comment": {
+			"patterns": [
+				{
+					"match": "//.*$",
+					"name": "punctuation.definition.comment"
+				},
+				{
+					"match": "<!--[\\s\\S]*?-->",
+					"name": "punctuation.definition.comment"
+				}
+			]
+		},
+		"script-tag": {
+			"patterns": [
+				{ 
+					"name": "variable.language",
+					"match": "(<script>|</script>)"
+				}
+			]
+		},
+		"begin-tag": {
+			"begin": "<([a-zA-Z0-9_]+\\-?)+",
+			"end": ">",
+			"captures": {
+				"0": { "name": "entity.name.tag" }
+			},
+			"patterns": [{ "include": "#tag-attributes" }]
+		},
+		"end-tag": {
+			"begin": "</([a-zA-Z0-9_]+\\-?)+",
+			"end": ">",
+			"captures": {
+				"0": { "name": "entity.name.tag" }
+			}
+		},
+		"tag-attributes": {
+			"patterns": [
+				{
+					"match": "\\b([a-zA-Z0-9_]+)\\b",
+					"name": "entity.other.attribute-name"
+				},
+				{
+					"match": "=",
+					"name": "punctuation.separator.key-value"
+				},
+				{
+					"begin": "'",
+					"end": "'",
+					"captures": {
+						"0": { "name": "punctuation.definition.string.begin" },
+						"1": { "name": "punctuation.definition.string.end" }
+					},
+					"patterns": [{ "include": "#expression" }]
+				}
+			]
+		},
+		"expression": {
+			"patterns": [
+				{ "include": "#keywords" },
+				{ "include": "#functionName" },
+				{ "include": "#operator" },
+				{ "include": "#strings" },
+				{ "include": "#number" },
+				{ "include": "#variable" }
+			]
+		},
+		"variable": {
+			"patterns": [
+				{
+					"comment": "preceeded by 'var'",
+					"name": "variable.other.object.broo",
+					"match": "(?<=var\\s+)[a-zA-Z0-9_]+(?=(\\s|\\b|$))"
+				},
+				{
+					"comment": "preceeded by ':'",
+					"name": "variable.other.object.broo",
+					"match": ":([a-zA-Z0-9_]+)"
+				},
+				{
+					"comment": "followed by '.' or '['",
+					"name": "variable.other.object.broo",
+					"match": "[a-zA-Z0-9_]+(?=(\\.|\\[))"
+				},
+				{
+					"comment": "preceeded by '.'",
+					"name": "variable.other.object.broo",
+					"match": "(?<=\\.\\s*)[a-zA-Z0-9_]+(?=(\\s|\\b|$))"
+				},
+				{
+					"comment": "(somevar)",
+					"name": "variable.other.object.broo",
+					"match": "(?<=(\\(|,)\\s*)[a-zA-Z0-9_]+(?=(\\)|,|\\s|$))"
+				},
+				{
+					"comment": "followed by an operator",
+					"name": "variable.other.object.broo",
+					"match": "(?<=(^|\\s*))[a-zA-Z0-9_]+(?=(\\s+(\\=|not|gt|ne|eq|lt|->|\\||\\?|\\?\\?|\\|\\||and|or|for|in|if)(\\s|$)))"
+				},
+				{
+					"comment": "followed by an operator",
+					"name": "variable.other.object.broo",
+					"match": "(?<=(^|\\s*|\\())[a-zA-Z0-9_]+(?=(\\s+(\\=|not|gt|ne|eq|lt|->|\\||\\?|\\?\\?|\\|\\||and|or|for|in|if)(\\s|$)))"
+				},
+				{
+					"comment": "preceeded by an operator",
+					"name": "variable.other.object.broo",
+					"match": "(?<=\\s(\\=|not|gt|ne|eq|lt|->|\\||\\?|\\?\\?|\\|\\||and|or|for|in|if)\\s+)[a-zA-Z0-9_]+(?=\\s*(\\)|\\]))"
+				}
+			]
+		},
 		"keywords": {
-			"patterns": [{
-				"name": "keyword.control.broo",
-				"match": "\\b(if|while|for|return)\\b"
-			}]
+			"patterns": [
+				{
+					"name": "keyword.control.broo",
+					"match": "(?<=(\\s|\\b|^))(var|const|equation|function|if|else|elseif|end|while|and|or|for|in|return)(?=(\\s|\\b|$))"
+				},
+				{
+					"name": "variable.name.broo",
+					"match": "(?<=(\\s|\\b|^))(undefined|null|false|true)(?=(\\s|\\b|$))"
+				}
+			]
+		},
+		"operator": {
+			"patterns": [
+				{
+					"name": "keyword.operator.comparison.broo",
+					"match": "(?<=(\\s|\\b|^))(not|gt|ne|eq|lt|->|\\||\\?|\\?\\?|\\|\\|)(?=(\\s|\\b|$))"
+				}	
+			]
+		},
+		"number": {
+			"patterns": [
+				{
+					"name": "constant.numeric.broo",
+					"match": "(?<=(\\s|\\b|^))([0-9]+)(?=(\\s|\\b|$))"
+				}
+			]
 		},
 		"strings": {
 			"name": "string.quoted.double.broo",

@@ -1,25 +1,56 @@
 {
-  "name": "broo",
-  "displayName": "Broo",
-  "description": "Syntax highlighting for .broo",
+  "name": "broo-language",
+  "displayName": "Broo Language",
+  "description": "Basic syntax highlighter for Broo",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.75.0"
   },
   "categories": [
-    "Programming Languages"
+    "Other"
   ],
+  "main": "./out/extension.js",
   "contributes": {
-    "languages": [{
-      "id": "broo",
-      "aliases": ["Broo", "broo"],
-      "extensions": [".broo"],
-      "configuration": "./language-configuration.json"
-    }],
-    "grammars": [{
-      "language": "broo",
-      "scopeName": "source.broo",
-      "path": "./syntaxes/broo.tmLanguage.json"
-    }]
+    "languages": [
+      {
+        "id": "broo",
+        "aliases": [
+          "Broo",
+          "broo"
+        ],
+        "extensions": [
+          ".broo"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "broo",
+        "scopeName": "source.broo",
+        "path": "./syntaxes/broo.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.75.0",
+    "@types/glob": "^8.0.1",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@typescript-eslint/eslint-plugin": "^5.49.0",
+    "@typescript-eslint/parser": "^5.49.0",
+    "eslint": "^8.33.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.1.0",
+    "typescript": "^4.9.4",
+    "@vscode/test-electron": "^2.2.2"
   }
 }
