@@ -10,10 +10,10 @@
 		"broo": {
 			"patterns": [
 				{ "include": "#script-tag" },
-				{ "include": "#begin-tag" }, 
-				{ "include": "#end-tag" },
-				{ "include": "#expression"},
-				{ "include": "#comment" }
+				{ "include": "#open-tag" }, 
+				{ "include": "#close-tag" },
+				{ "include": "#expression" },
+				{ "include": "#commentXXX" }
 			]
 		},
 		"functionName": {
@@ -28,7 +28,7 @@
 				}
 			]
 		},
-		"comment": {
+		"comment_XXX_SKIP_COMMENTS_FOR_NOW": {
 			"patterns": [
 				{
 					"match": "//.*$",
@@ -41,22 +41,28 @@
 			]
 		},
 		"script-tag": {
+			"begin": "<script>",
+			"end": "</script>",
+			"captures": {
+				"0": { "name": "entity.name.function" }
+			},
 			"patterns": [
-				{ 
-					"name": "variable.language",
-					"match": "(<script>|</script>)"
-				}
+				{ "include": "#script-tag" },
+				{ "include": "#open-tag" }, 
+				{ "include": "#close-tag" },
+				{ "include": "#expression"},
+				{ "include": "#commentXXX" }
 			]
 		},
-		"begin-tag": {
+		"open-tag": {
 			"begin": "<([a-zA-Z0-9_]+\\-?)+",
-			"end": ">",
+			"end": "(?<!-)(\\/>|>)",
 			"captures": {
 				"0": { "name": "entity.name.tag" }
 			},
 			"patterns": [{ "include": "#tag-attributes" }]
 		},
-		"end-tag": {
+		"close-tag": {
 			"begin": "</([a-zA-Z0-9_]+\\-?)+",
 			"end": ">",
 			"captures": {
@@ -81,6 +87,15 @@
 						"1": { "name": "punctuation.definition.string.end" }
 					},
 					"patterns": [{ "include": "#expression" }]
+				},
+				{
+					"begin": "\"",
+					"end": "\"",
+					"captures": {
+						"0": { "name": "punctuation.definition.string.begin" },
+						"1": { "name": "punctuation.definition.string.end" }
+					},
+					"patterns": [{ "include": "#expression" }]
 				}
 			]
 		},
@@ -90,8 +105,10 @@
 				{ "include": "#functionName" },
 				{ "include": "#operator" },
 				{ "include": "#strings" },
+				{ "include": "#pipeStrings" },
 				{ "include": "#number" },
 				{ "include": "#variable" }
+
 			]
 		},
 		"variable": {
@@ -166,16 +183,15 @@
 				}
 			]
 		},
+		"pipeStrings": {
+			"name": "string.quoted.double.broo",
+			"begin": "(?<=\\()\\s*\\|",
+			"end": "\\|\\s*(?=\\))"
+		},
 		"strings": {
 			"name": "string.quoted.double.broo",
 			"begin": "\"",
-			"end": "\"",
-			"patterns": [
-				{
-					"name": "constant.character.escape.broo",
-					"match": "\\\\."
-				}
-			]
+			"end": "\""
 		}
 	},
 	"scopeName": "source.broo"
