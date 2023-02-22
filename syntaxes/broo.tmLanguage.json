@@ -9,11 +9,10 @@
 	"repository": {
 		"broo": {
 			"patterns": [
-				{ "include": "#script-tag" },
 				{ "include": "#open-tag" }, 
 				{ "include": "#close-tag" },
 				{ "include": "#expression" },
-				{ "include": "#commentXXX" }
+				{ "include": "#comment-" }
 			]
 		},
 		"functionName": {
@@ -25,51 +24,75 @@
 				},
 				{
 					"comment": "For calling functions: functionName()",
-					"match": "(?<=(\\.|\\s|^|\\(|'))[a-zA-Z0-9_]+(?=\\()",
+					"match": "(?<=(\\.|\\s|^|\\(|'|{))[a-zA-Z0-9_]+(?=\\()",
 					"name": "entity.name.function"
 				}
 			]
 		},
-		"comment_XXX_SKIP_COMMENTS_FOR_NOW": {
+		"comment-": {
 			"patterns": [
 				{
-					"match": "//.*$",
+					"comment": "Single line comments",
+					"match": "(?<=(^|\\s)*)//.*?$",
 					"name": "punctuation.definition.comment"
 				},
 				{
-					"match": "<!--[\\s\\S]*?-->",
+					"begin": "<!--",
+					"end": "-->",
 					"name": "punctuation.definition.comment"
 				}
 			]
 		},
-		"script-tag": {
+		"script-tag-logic-in-open-tag": {
 			"begin": "<script>",
 			"end": "</script>",
 			"captures": {
 				"0": { "name": "entity.name.function" }
 			},
 			"patterns": [
+				{ "include": "#comment-" },
 				{ "include": "#script-tag" },
 				{ "include": "#open-tag" }, 
 				{ "include": "#close-tag" },
-				{ "include": "#expression"},
-				{ "include": "#commentXXX" }
+				{ "include": "#expression"}
 			]
 		},
 		"open-tag": {
-			"begin": "<([a-zA-Z0-9_]+\\-?)+",
-			"end": "(?<!-)(\\/>|>)",
-			"captures": {
-				"0": { "name": "entity.name.tag" }
+			"begin": "<(?!(\\!|\\/))",
+			"end": "(\\/>|>)",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.tag" },
+				"1": { "name": "punctuation.definition.tag" }
 			},
-			"patterns": [{ "include": "#tag-attributes" }]
+			"patterns": [
+				{ "include": "#script-name" },
+				{ "include": "#tag-name" },
+				{ "include": "#tag-attributes" }
+			]
 		},
 		"close-tag": {
-			"begin": "</([a-zA-Z0-9_]+\\-?)+",
+			"begin": "</",
 			"end": ">",
-			"captures": {
-				"0": { "name": "entity.name.tag" }
-			}
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.tag" },
+				"1": { "name": "punctuation.definition.tag" }
+			},
+			"patterns": [
+				{ "include": "#script-name" },
+				{ "include": "#tag-name" }
+			]
+		},
+		"script-name": {
+			"name": "entity.name.function", 
+			"match": "\\s*script\\s*"
+		},
+		"tag-name": {
+			"patterns": [
+				{
+					"name": "entity.name.tag",
+					"match": "(?<=\\s*?(<|</))([a-zA-Z0-9_]+\\-?)+"
+				}
+			]
 		},
 		"tag-attributes": {
 			"patterns": [
@@ -107,7 +130,7 @@
 				{ "include": "#functionName" },
 				{ "include": "#operator" },
 				{ "include": "#strings" },
-				{ "include": "#pipeStrings" },
+				{ "include": "#bananaStrings" },
 				{ "include": "#objectKey"},
 				{ "include": "#number" },
 				{ "include": "#variable" }
@@ -116,7 +139,7 @@
 		"variable": {
 			"patterns": [
 				{
-					"comment": "preceeded by 'var'",
+					"comment": "preceeded by 'var '",
 					"name": "variable.other.object.broo",
 					"match": "(?<=var\\s+)[a-zA-Z0-9$_]+(?=(\\s|\\b|$))"
 				},
@@ -126,12 +149,17 @@
 					"match": ":([a-zA-Z0-9$_]+)"
 				},
 				{
+					"comment": "root variable followed by '.' or '['",
+					"name": "entity.name.tag",
+					"match": "(?<!\\.)[a-zA-Z0-9$_]+(?=(\\.|\\[))"
+				},
+				{
 					"comment": "followed by '.' or '['",
 					"name": "variable.other.object.broo",
 					"match": "[a-zA-Z0-9$_]+(?=(\\.|\\[))"
 				},
 				{
-					"comment": "preceeded by '.' in 'somevar.var'",
+					"comment": "preceeded by '.' (eg. 'somevar.var')",
 					"name": "variable.other.object.broo",
 					"match": "(?<=\\.\\s*)[a-zA-Z0-9$_]+(?=(\\s|\\b|$))"
 				},
@@ -153,7 +181,7 @@
 				{
 					"comment": "whole word",
 					"name": "variable.other.object.broo",
-					"match": "\\b[a-zA-Z0-9$_]+\\b"
+					"match": "(?<!>)\\b[a-zA-Z0-9$_]+\\b(?!<)"
 				}
 			]
 		},
@@ -170,7 +198,7 @@
 			"patterns": [
 				{
 					"name": "keyword.control.broo",
-					"match": "(?<=(\\s|\\b|^))(var|const|equation|break|function|if|else|elseif|end|while|and|or|for|in|return)(?=(\\s|\\b|$))"
+					"match": "(?<=(\\s|\\b|^))(var|const|equation|break|function|if|else|elseif|end|while|and|or|for|not|in|return)(?=(\\s|\\b|$))"
 				},
 				{
 					"name": "variable.name.broo",
@@ -181,8 +209,8 @@
 		"operator": {
 			"patterns": [
 				{
-					"name": "keyword.control.broo",
-					"match": "(?<=(\\s|\\b|^))(not|gt|ne|eq|lt|le|ge|->|\\||\\?|\\?\\?|\\|\\|)(?=(\\s|\\b|$))"
+					"name": "try no color",
+					"match": "(?<=(\\s|\\b|^))(gt|ne|eq|lt|le|ge|->|\\||\\?|\\?\\?|\\|\\|)(?=(\\s|\\b|$))"
 				}	
 			]
 		},
@@ -194,7 +222,7 @@
 				}
 			]
 		},
-		"pipeStrings": {
+		"bananaStrings": {
 			"name": "string.quoted.double.broo",
 			"begin": "(?<=\\()\\s*\\|",
 			"end": "\\|\\s*(?=\\))"
